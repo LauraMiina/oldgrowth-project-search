@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Old-growth forests</title>
+    <link rel="stylesheet" href="reset.css">
+    <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+</head>
+<style>
+    body {
+        font-size: 20px;
+        line-height: 1.4;
+    }
+    .container {
+        width: 100%;
+        height: 100vh;
+        position: relative;
+    }
+    h1 {
+        font-size: 40px;
+        margin-bottom: 0px;
+        font-weight: bold;
+    }
+    h2 {
+        font-size: 20px;
+        margin-bottom: 40px;
+        color: #636363;
+    }
+    p {
+        margin-bottom: 18px;
+    }
+    .byline {
+        font-style: italic;
+        margin-bottom: 18px;
+    }
+    #map {
+        height: 100vh;
+        width: 100%;
+        background: white;
+    }
+    .mapboxgl-popup {
+        max-width: 400px;
+        font: 12px/20px 'Helvetica Neue', Garamond;
+    }
+    .legend {
+        position: absolute;
+        bottom: 20px;
+        left: 10px;
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.565);
+        border-radius: 5px;
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-weight: bold;
+        font-size: 13px;
+        color: #555;
+        width: 300px; /* Adjust the width as needed */
+    }
+    .legend h4 {
+        margin: 0 0 10px;
+    }
+    .color-bar {
+        width: 100%;
+        height: 20px;
+        background: linear-gradient(to right, #dcf4ee, #10382f); /* Replace with your colors */
+        margin-bottom: 5px;
+    }
+    .range-labels {
+        display: flex;
+        justify-content: space-between;
+    }
+    .search-container {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        z-index: 1;
+        background: rgba(62, 126, 113, 0.664); /* Semi-transparent black background */
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        color: white; /* White text color */
+        width: 300px; /* Adjust width as needed */
+        font-family: 'Helvetica Neue', Arial, sans-serif;
+    }
+    .search-container h4 {
+        margin: 0 0 10px;
+        font-size: 20px;
+        font-weight: bold;
+    }
+    .search-container p {
+        margin: 0 0 10px;
+        font-size: 14px;
+    }
+    .search-container select {
+        width: 100%;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: none;
+        border-radius: 3px;
+        background: white;
+        color: black;
+    }
+</style>
+<body>
+    <div class="container">
+        <div id="map"></div>
+        <div class="search-container">
+            <h4>Debated logging projects in federal lands with old-growth and mature forests</h4>
+            <p>By Laura Kukkonen</p>
+            <p>Something about the logging projects.</p>
+            <select id="projectDropdown">
+                <option value="">Select a logging project</option>
+            </select>
+            <p>Source: The Forest Service, Climate Forests</p>
+        </div>
+        <div class="legend">
+            <h4>Acres of old-growth in a fireshed</h4>
+            <div class="color-bar"></div>
+            <div class="range-labels">
+                <span>1</span>
+                <span>250,000</span>
+            </div>
+        </div>
+    </div>
+
+<script>
+    mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmFtZWsiLCJhIjoiY2xpZW1lNDhyMDcyazNrbXIxZWVlb2FkeiJ9.EMmoLWWUuRelWB2Jucc23Q';
+
+    const map = new mapboxgl.Map({
+        container: 'map',
+        center: [-111.369745, 40.033507],
+        zoom: 4.2,
+        minZoom: 3.5,
+        maxZoom: 10,
+        style: "mapbox://styles/lauramek/clydgthvo014f01p8atl4d6t6"
+    });
+
+    let featureMap = {};
+
+    map.on('style.load', () => {
+        console.log("Style loaded successfully");
+
+        const layers = map.getStyle().layers;
+        console.log("Layers:", layers);
+
+        if (layers) {
+            layers.forEach(layer => {
+                console.log(`Layer ID: ${layer.id}, Type: ${layer.type}`);
+            });
+        }
+
+        // Populate the dropdown with project names
+        populateProjectDropdown();
+    });
+
+    function populateProjectDropdown() {
+        map.once('idle', () => {
+            console.log('Map is idle, querying features...');
+            const projectNames = new Set();
+            const projectDropdown = document.getElementById('projectDropdown');
+
+            // Query features for the specific layer
+            const features = map.queryRenderedFeatures({
+                layers: ['projectlisting-cubelm'] // Use the actual layer ID
+            });
+
+            features.forEach(feature => {
+                if (feature.properties.project && feature.properties.project.trim() !== "") {
+                    projectNames.add(feature.properties.project);
+                    featureMap[feature.properties.project] = feature;
+                }
+            });
+
+            projectNames.forEach(name => {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                projectDropdown.appendChild(option);
+            });
+        });
+    }
+
+    document.getElementById('projectDropdown').addEventListener('change', function(e) {
+        const selectedProject = e.target.value;
+        if (selectedProject && featureMap[selectedProject]) {
+            const feature = featureMap[selectedProject];
+            map.flyTo({
+                center: feature.geometry.coordinates,
+                zoom: 6
+            });
+
+            new mapboxgl.Popup({ 
+                offset: 9,
+                anchor: 'top-left' })
+                .setLngLat(feature.geometry.coordinates)
+                .setHTML(`<strong>${feature.properties.Description}`)
+                .addTo(map);
+        }
+    });
+</script>
+</body>
+</html>
