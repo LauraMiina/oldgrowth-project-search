@@ -110,7 +110,7 @@
             <p>By Laura Kukkonen</p>
             <p>Something about the logging projects.</p>
             <select id="projectDropdown">
-                <option value="">Select a logging project</option>
+                <option value="">Select a state</option>
             </select>
             <p>Source: The Forest Service, Climate Forests</p>
         </div>
@@ -123,7 +123,6 @@
             </div>
         </div>
     </div>
-
 <script>
     mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmFtZWsiLCJhIjoiY2xpZW1lNDhyMDcyazNrbXIxZWVlb2FkeiJ9.EMmoLWWUuRelWB2Jucc23Q';
 
@@ -135,43 +134,43 @@
         maxZoom: 10,
         style: "mapbox://styles/lauramek/clydgthvo014f01p8atl4d6t6"
     });
-
+    
     let featureMap = {};
-
+    
     map.on('style.load', () => {
         console.log("Style loaded successfully");
-
+    
         const layers = map.getStyle().layers;
         console.log("Layers:", layers);
-
+    
         if (layers) {
             layers.forEach(layer => {
                 console.log(`Layer ID: ${layer.id}, Type: ${layer.type}`);
             });
         }
-
+    
         // Populate the dropdown with project names
         populateProjectDropdown();
     });
-
+    
     function populateProjectDropdown() {
         map.once('idle', () => {
             console.log('Map is idle, querying features...');
             const projectNames = new Set();
             const projectDropdown = document.getElementById('projectDropdown');
-
+    
             // Query features for the specific layer
             const features = map.queryRenderedFeatures({
-                layers: ['projectlisting-cubelm'] // Use the actual layer ID
+                layers: ['projects'] // Use the actual layer ID
             });
-
+    
             features.forEach(feature => {
-                if (feature.properties.project && feature.properties.project.trim() !== "") {
-                    projectNames.add(feature.properties.project);
-                    featureMap[feature.properties.project] = feature;
+                if (feature.properties.state && feature.properties.state.trim() !== "") {
+                    projectNames.add(feature.properties.state);
+                    featureMap[feature.properties.state] = feature;
                 }
             });
-
+    
             projectNames.forEach(name => {
                 const option = document.createElement('option');
                 option.value = name;
@@ -180,7 +179,7 @@
             });
         });
     }
-
+    
     document.getElementById('projectDropdown').addEventListener('change', function(e) {
         const selectedProject = e.target.value;
         if (selectedProject && featureMap[selectedProject]) {
@@ -189,15 +188,41 @@
                 center: feature.geometry.coordinates,
                 zoom: 6
             });
-
+    
             new mapboxgl.Popup({ 
                 offset: 9,
-                anchor: 'top-left' })
-                .setLngLat(feature.geometry.coordinates)
-                .setHTML(`<strong>${feature.properties.Description}`)
-                .addTo(map);
+                anchor: 'top-left' 
+            })
+            .setLngLat(feature.geometry.coordinates)
+            .setHTML(`
+    <div>
+        <b>${feature.properties.name_of_project}</b><br>
+        Amount of acres subject to logging: ${feature.properties.acres_to_log}<br>
+        ${feature.properties.description}
+    </div>
+`)
+            .addTo(map);
         }
     });
-</script>
+    
+    // Add event listener for search input
+    document.getElementById('projectSearch').addEventListener('input', function(e) {
+        const searchValue = e.target.value.toLowerCase();
+        const projectDropdown = document.getElementById('projectDropdown');
+        
+        // Clear current dropdown options
+        projectDropdown.innerHTML = '';
+    
+        // Filter and display matching projects
+        Object.keys(featureMap).forEach(name => {
+            if (name.toLowerCase().includes(searchValue)) {
+                const option = document.createElement('option');
+                option.value = name;
+                option.textContent = name;
+                projectDropdown.appendChild(option);
+            }
+        });
+    });
+    </script>
 </body>
 </html>
