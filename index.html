@@ -110,7 +110,7 @@
             <p>By Laura Kukkonen</p>
             <p>Something about the logging projects.</p>
             <select id="projectDropdown">
-                <option value="">Select a state</option>
+                <option value="">Select a project</option>
             </select>
             <p>Source: The Forest Service, Climate Forests</p>
         </div>
@@ -165,9 +165,9 @@
             });
     
             features.forEach(feature => {
-                if (feature.properties.state && feature.properties.state.trim() !== "") {
-                    projectNames.add(feature.properties.state);
-                    featureMap[feature.properties.state] = feature;
+                if (feature.properties.name_of_project && feature.properties.name_of_project.trim() !== "") {
+                    projectNames.add(feature.properties.name_of_project);
+                    featureMap[feature.properties.name_of_project] = feature;
                 }
             });
     
@@ -195,34 +195,64 @@
             })
             .setLngLat(feature.geometry.coordinates)
             .setHTML(`
-    <div>
-        <b>${feature.properties.name_of_project}</b><br>
-        Amount of acres subject to logging: ${feature.properties.acres_to_log}<br>
-        ${feature.properties.description}
-    </div>
-`)
+                <div>
+                    <b>${feature.properties.name_of_project}</b><br>
+                    Amount of acres subject to logging: ${feature.properties.acres_to_log}<br>
+                    ${feature.properties.description}
+                </div>
+            `)
             .addTo(map);
         }
     });
-    
-    // Add event listener for search input
-    document.getElementById('projectSearch').addEventListener('input', function(e) {
-        const searchValue = e.target.value.toLowerCase();
-        const projectDropdown = document.getElementById('projectDropdown');
-        
-        // Clear current dropdown options
-        projectDropdown.innerHTML = '';
-    
-        // Filter and display matching projects
-        Object.keys(featureMap).forEach(name => {
-            if (name.toLowerCase().includes(searchValue)) {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                projectDropdown.appendChild(option);
-            }
-        });
+
+    // Variable to hold the currently open popup
+    let popup = new mapboxgl.Popup({
+        closeButton: false,
+        closeOnClick: false
     });
-    </script>
+
+    // Add hover functionality to show OLD_GROWTH_ACRES
+    map.on('mousemove', 'oldgrowth', (e) => {
+        const features = e.features;
+        if (features.length > 0) {
+            const feature = features[0];
+            map.getCanvas().style.cursor = 'pointer';
+
+            popup
+                .setLngLat(e.lngLat)
+                .setHTML(`<div>Amount of old-growth forest inside the  fireshed ${feature.properties.Fireshed_Name}: ${feature.properties.OLD_GROWTH_ACRES} acres</div>`)
+                .addTo(map);
+        }
+    });
+
+    map.on('mouseleave', 'oldgrowth', () => {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
+
+    // Add hover functionality to show projects
+    map.on('mousemove', 'projects', (e) => {
+        const features = e.features;
+        if (features.length > 0) {
+            const feature = features[0];
+            map.getCanvas().style.cursor = 'pointer';
+
+            popup
+                .setLngLat(e.lngLat)
+                .setHTML(`<div>
+                    <b>${feature.properties.name_of_project}</b><br>
+                    Amount of acres subject to logging: ${feature.properties.acres_to_log}<br>
+                    ${feature.properties.description}
+                    </div>`)
+                .addTo(map);
+        }
+    });
+
+    map.on('mouseleave', 'oldgrowth', () => {
+        map.getCanvas().style.cursor = '';
+        popup.remove();
+    });
+
+</script>
 </body>
 </html>
