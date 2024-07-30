@@ -108,10 +108,11 @@
         <div class="search-container">
             <h4>Debated logging projects in federal lands with old-growth and mature forests</h4>
             <p>By Laura Kukkonen</p>
-            <p>Something about the logging projects.</p>
+            <p>Select a project to see details.</p>
             <select id="projectDropdown">
                 <option value="">Select a project</option>
             </select>
+            <p id="projectInfo"></p>
             <p>Source: The Forest Service, Climate Forests</p>
         </div>
         <div class="legend">
@@ -123,136 +124,153 @@
             </div>
         </div>
     </div>
-<script>
-    mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmFtZWsiLCJhIjoiY2xpZW1lNDhyMDcyazNrbXIxZWVlb2FkeiJ9.EMmoLWWUuRelWB2Jucc23Q';
-
-    const map = new mapboxgl.Map({
-        container: 'map',
-        center: [-113.738995, 40.354886],
-        zoom: 4.2,
-        minZoom: 3.5,
-        maxZoom: 10,
-        style: "mapbox://styles/lauramek/clydgthvo014f01p8atl4d6t6"
-    });
+    <script>
+        mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmFtZWsiLCJhIjoiY2xpZW1lNDhyMDcyazNrbXIxZWVlb2FkeiJ9.EMmoLWWUuRelWB2Jucc23Q';
     
-    let featureMap = {};
+        const map = new mapboxgl.Map({
+            container: 'map',
+            center: [-113.738995, 40.354886],
+            zoom: 4.2,
+            minZoom: 3.5,
+            maxZoom: 10,
+            style: "mapbox://styles/lauramek/clydgthvo014f01p8atl4d6t6"
+        });
     
-    map.on('style.load', () => {
-        console.log("Style loaded successfully");
+        let featureMap = {};
     
-        const layers = map.getStyle().layers;
-        console.log("Layers:", layers);
+        map.on('style.load', () => {
+            console.log("Style loaded successfully");
     
-        if (layers) {
-            layers.forEach(layer => {
-                console.log(`Layer ID: ${layer.id}, Type: ${layer.type}`);
+            const layers = map.getStyle().layers;
+            console.log("Layers:", layers);
+    
+            if (layers) {
+                layers.forEach(layer => {
+                    console.log(`Layer ID: ${layer.id}, Type: ${layer.type}`);
+                });
+            }
+    
+            // Populate the dropdown with project names
+            populateProjectDropdown();
+        });
+    
+        function populateProjectDropdown() {
+            map.once('idle', () => {
+                console.log('Map is idle, querying features...');
+                const projectNames = new Set();
+                const projectDropdown = document.getElementById('projectDropdown');
+    
+                // Query features for the specific layer
+                const features = map.queryRenderedFeatures({
+                    layers: ['projects'] // Use the actual layer ID
+                });
+    
+                features.forEach(feature => {
+                    if (feature.properties.name_of_project && feature.properties.name_of_project.trim() !== "") {
+                        projectNames.add(feature.properties.name_of_project);
+                        featureMap[feature.properties.name_of_project] = feature;
+                    }
+                });
+    
+                projectNames.forEach(name => {
+                    const option = document.createElement('option');
+                    option.value = name;
+                    option.textContent = name;
+                    projectDropdown.appendChild(option);
+                });
             });
         }
     
-        // Populate the dropdown with project names
-        populateProjectDropdown();
-    });
+        document.getElementById('projectDropdown').addEventListener('change', function(e) {
+            const selectedProject = e.target.value;
+            if (selectedProject && featureMap[selectedProject]) {
+                const feature = featureMap[selectedProject];
+                map.flyTo({
+                    center: feature.geometry.coordinates,
+                    zoom: 6
+                });
     
-    function populateProjectDropdown() {
-        map.once('idle', () => {
-            console.log('Map is idle, querying features...');
-            const projectNames = new Set();
-            const projectDropdown = document.getElementById('projectDropdown');
+                new mapboxgl.Popup({
+                    offset: 9,
+                    anchor: 'top-left'
+                })
+                .setLngLat(feature.geometry.coordinates)
+                .setHTML(`
+                    <div>
+                        <b>${feature.properties.name_of_project}</b><br>
+                        Amount of acres subject to logging: ${feature.properties.acres_to_log}<br>
+                        ${feature.properties.description}
+                    </div>
+                `)
+                .addTo(map);
     
-            // Query features for the specific layer
-            const features = map.queryRenderedFeatures({
-                layers: ['projects'] // Use the actual layer ID
-            });
+                // Count projects in the selected state
+                const projectCount = countProjectsInState(feature.properties.state);
     
-            features.forEach(feature => {
-                if (feature.properties.name_of_project && feature.properties.name_of_project.trim() !== "") {
-                    projectNames.add(feature.properties.name_of_project);
-                    featureMap[feature.properties.name_of_project] = feature;
+                // Update project information paragraph with correct singular/plural form
+                const projectText = projectCount === 1 ? 'There is 1 logging project' : `There are ${projectCount} logging projects`;
+                document.getElementById('projectInfo').innerHTML = `${feature.properties.name_of_project} in ${feature.properties.state} is targeting ${feature.properties.acres_to_log} acres. ${projectText} in ${feature.properties.state} that environmental groups oppose.`;
+            }
+        });
+    
+        function countProjectsInState(state) {
+            let count = 0;
+            Object.values(featureMap).forEach(feature => {
+                if (feature.properties.state === state) {
+                    count++;
                 }
             });
+            return count;
+        }
     
-            projectNames.forEach(name => {
-                const option = document.createElement('option');
-                option.value = name;
-                option.textContent = name;
-                projectDropdown.appendChild(option);
-            });
+        // Variable to hold the currently open popup
+        let popup = new mapboxgl.Popup({
+            closeButton: false,
+            closeOnClick: false
         });
-    }
     
-    document.getElementById('projectDropdown').addEventListener('change', function(e) {
-        const selectedProject = e.target.value;
-        if (selectedProject && featureMap[selectedProject]) {
-            const feature = featureMap[selectedProject];
-            map.flyTo({
-                center: feature.geometry.coordinates,
-                zoom: 6
-            });
+        // Add hover functionality to show OLD_GROWTH_ACRES
+        map.on('mousemove', 'oldgrowth', (e) => {
+            const features = e.features;
+            if (features.length > 0) {
+                const feature = features[0];
+                map.getCanvas().style.cursor = 'pointer';
     
-            new mapboxgl.Popup({ 
-                offset: 9,
-                anchor: 'top-left' 
-            })
-            .setLngLat(feature.geometry.coordinates)
-            .setHTML(`
-                <div>
-                    <b>${feature.properties.name_of_project}</b><br>
-                    Amount of acres subject to logging: ${feature.properties.acres_to_log}<br>
-                    ${feature.properties.description}
-                </div>
-            `)
-            .addTo(map);
-        }
-    });
-
-    // Variable to hold the currently open popup
-    let popup = new mapboxgl.Popup({
-        closeButton: false,
-        closeOnClick: false
-    });
-
-    // Add hover functionality to show OLD_GROWTH_ACRES
-    map.on('mousemove', 'oldgrowth', (e) => {
-        const features = e.features;
-        if (features.length > 0) {
-            const feature = features[0];
-            map.getCanvas().style.cursor = 'pointer';
-
-            popup
-                .setLngLat(e.lngLat)
-                .setHTML(`<div>Amount of old-growth forest inside the  fireshed ${feature.properties.Fireshed_Name}: ${feature.properties.OLD_GROWTH_ACRES} acres</div>`)
-                .addTo(map);
-        }
-    });
-
-    map.on('mouseleave', 'oldgrowth', () => {
-        map.getCanvas().style.cursor = '';
-        popup.remove();
-    });
-
-    // Add hover functionality to show projects
-    map.on('mousemove', 'projects', (e) => {
-        const features = e.features;
-        if (features.length > 0) {
-            const feature = features[0];
-            map.getCanvas().style.cursor = 'pointer';
-
-            popup
-                .setLngLat(e.lngLat)
-                .setHTML(`<div>
-                    <b>${feature.properties.name_of_project}</b><br>
-                    Amount of acres subject to logging: ${feature.properties.acres_to_log}<br>
-                    ${feature.properties.description}
-                    </div>`)
-                .addTo(map);
-        }
-    });
-
-    map.on('mouseleave', 'oldgrowth', () => {
-        map.getCanvas().style.cursor = '';
-        popup.remove();
-    });
-
-</script>
-</body>
-</html>
+                popup
+                    .setLngLat(e.lngLat)
+                    .setHTML(`<div>Amount of old-growth forest inside the fireshed ${feature.properties.Fireshed_Name}: ${feature.properties.OLD_GROWTH_ACRES} acres</div>`)
+                    .addTo(map);
+            }
+        });
+    
+        map.on('mouseleave', 'oldgrowth', () => {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+    
+        // Add hover functionality to show projects
+        map.on('mousemove', 'projects', (e) => {
+            const features = e.features;
+            if (features.length > 0) {
+                const feature = features[0];
+                map.getCanvas().style.cursor = 'pointer';
+    
+                popup
+                    .setLngLat(e.lngLat)
+                    .setHTML(`<div>
+                        <b>${feature.properties.name_of_project}</b><br>
+                        Amount of acres subject to logging: ${feature.properties.acres_to_log}<br>
+                        ${feature.properties.description}
+                        </div>`)
+                    .addTo(map);
+            }
+        });
+    
+        map.on('mouseleave', 'projects', () => {
+            map.getCanvas().style.cursor = '';
+            popup.remove();
+        });
+    
+    </script>
+    </body>
+    </html>
