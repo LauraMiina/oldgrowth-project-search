@@ -108,8 +108,9 @@
         <div class="search-container">
             <h4>Debated logging projects in federal lands with old-growth and mature forests</h4>
             <p>By Laura Kukkonen</p>
+            <p>Select one of the projects to learn more about them or hover over the orange circles on the map. Explore the amount of old-growth throughout the country by zooming in and hovering over areas.</p>
             <select id="projectDropdown">
-                <option value="">Select a project to see details</option>
+                <option value="">Select</option>
             </select>
             <p id="projectInfo"></p>
             <p>Source: The Forest Service, Climate Forests</p>
@@ -128,7 +129,7 @@
     
         const map = new mapboxgl.Map({
             container: 'map',
-            center: [-113.738995, 40.354886],
+            center: [-97.916788, 40.618408],
             zoom: 4.2,
             minZoom: 3.5,
             maxZoom: 10,
@@ -154,31 +155,36 @@
         });
     
         function populateProjectDropdown() {
-            map.once('idle', () => {
-                console.log('Map is idle, querying features...');
-                const projectNames = new Set();
-                const projectDropdown = document.getElementById('projectDropdown');
-    
-                // Query features for the specific layer
-                const features = map.queryRenderedFeatures({
-                    layers: ['projects'] // Use the actual layer ID
-                });
-    
-                features.forEach(feature => {
-                    if (feature.properties.name_of_project && feature.properties.name_of_project.trim() !== "") {
-                        projectNames.add(feature.properties.name_of_project);
-                        featureMap[feature.properties.name_of_project] = feature;
-                    }
-                });
-    
-                projectNames.forEach(name => {
-                    const option = document.createElement('option');
-                    option.value = name;
-                    option.textContent = name;
-                    projectDropdown.appendChild(option);
-                });
-            });
-        }
+    map.once('idle', () => {
+        console.log('Map is idle, querying features...');
+        const projectNames = new Set();
+        const projectDropdown = document.getElementById('projectDropdown');
+
+        // Query features for the specific layer
+        const features = map.queryRenderedFeatures({
+            layers: ['projects'] // Use the actual layer ID
+        });
+
+        features.forEach(feature => {
+            if (feature.properties.name_of_project && feature.properties.name_of_project.trim() !== "") {
+                projectNames.add(feature.properties.name_of_project);
+                featureMap[feature.properties.name_of_project] = feature;
+            }
+        });
+
+        // Convert Set to Array and sort alphabetically
+        const sortedProjectNames = Array.from(projectNames).sort();
+
+        // Add sorted options to the dropdown
+        sortedProjectNames.forEach(name => {
+            const option = document.createElement('option');
+            option.value = name;
+            option.textContent = name;
+            projectDropdown.appendChild(option);
+        });
+    });
+}
+
     
         document.getElementById('projectDropdown').addEventListener('change', function(e) {
             const selectedProject = e.target.value;
@@ -197,7 +203,7 @@
                 .setHTML(`
                     <div>
                         <b>${feature.properties.name_of_project}</b><br>
-                        Amount of acres subject to logging: ${feature.properties.acres_to_log}<br>
+                        Amount of acres subject to logging: ${Number(feature.properties.acres_to_log).toLocaleString()}<br>
                         ${feature.properties.description}
                     </div>
                 `)
@@ -208,7 +214,7 @@
     
                 // Update project information paragraph with correct singular/plural form
                 const projectText = projectCount === 1 ? 'There is 1 logging project' : `There are ${projectCount} logging projects`;
-                document.getElementById('projectInfo').innerHTML = `${feature.properties.name_of_project} in ${feature.properties.state} is targeting ${feature.properties.acres_to_log} acres. ${projectText} in ${feature.properties.state} that environmental groups oppose.`;
+                document.getElementById('projectInfo').innerHTML = `The ${feature.properties.name_of_project} in ${feature.properties.state} is targeting ${Number(feature.properties.acres_to_log).toLocaleString()} acres of forest. ${projectText} in ${feature.properties.state} that environmental groups oppose.`;
             }
         });
     
@@ -237,7 +243,7 @@
     
                 popup
                     .setLngLat(e.lngLat)
-                    .setHTML(`<div>Amount of old-growth forest inside the fireshed ${feature.properties.Fireshed_Name}: ${feature.properties.OLD_GROWTH_ACRES} acres</div>`)
+                    .setHTML(`<div>Amount of old-growth forest inside the fireshed ${feature.properties.Fireshed_Name}: ${Number(feature.properties.OLD_GROWTH_ACRES).toLocaleString()} acres</div>`)
                     .addTo(map);
             }
         });
@@ -258,7 +264,7 @@
                     .setLngLat(e.lngLat)
                     .setHTML(`<div>
                         <b>${feature.properties.name_of_project}</b><br>
-                        Amount of acres subject to logging: ${feature.properties.acres_to_log}<br>
+                        Amount of acres subject to logging: ${Number(feature.properties.acres_to_log).toLocaleString()}<br>
                         ${feature.properties.description}
                         </div>`)
                     .addTo(map);
