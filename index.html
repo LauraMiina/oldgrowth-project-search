@@ -228,7 +228,7 @@
             closeOnClick: false
         });
     
-        // Add hover functionality to show OLD_GROWTH_ACRES
+        // hover to show OLD_GROWTH_ACRES
         map.on('mousemove', 'oldgrowth', (e) => {
             const features = e.features;
             if (features.length > 0) {
@@ -247,7 +247,7 @@
             popup.remove();
         });
     
-        // Add hover functionality to show projects
+        // hover to show projects
         map.on('mousemove', 'projects', (e) => {
             const features = e.features;
             if (features.length > 0) {
