@@ -19,14 +19,13 @@
         position: relative;
     }
     h1 {
-        font-size: 40px;
+        font-size: 30px;
         margin-bottom: 0px;
         font-weight: bold;
     }
-    h2 {
+    h4 {
         font-size: 20px;
         margin-bottom: 40px;
-        color: #636363;
     }
     p {
         margin-bottom: 18px;
@@ -63,7 +62,7 @@
     .color-bar {
         width: 100%;
         height: 20px;
-        background: linear-gradient(to right, #dcf4ee, #10382f); /* Replace with your colors */
+        background: linear-gradient(to right, #dcf4ee, #10382f);
         margin-bottom: 5px;
     }
     .range-labels {
@@ -72,15 +71,16 @@
     }
     .search-container {
         position: absolute;
-        top: 10px;
-        left: 10px;
+        top: 0px;
+        left: 0px;
         z-index: 1;
-        background: rgba(62, 126, 113, 0.664); /* Semi-transparent black background */
+        background: rgba(54, 110, 99, 0.795);
         padding: 20px;
-        border-radius: 5px;
-        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-        color: white; /* White text color */
-        width: 300px; /* Adjust width as needed */
+       /* border-radius: 5px; 
+        box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
+        color: white;
+        width: 400px;
+        height: 100vh;
         font-family: 'Helvetica Neue', Arial, sans-serif;
     }
     .search-container h4 {
@@ -101,28 +101,60 @@
         background: white;
         color: black;
     }
+    .circle-size-legend {
+    margin-top: 10px;
+}
+
+.circle-size {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.circle {
+    border-radius: 50%;
+    background-color: #f5640a;
+    display: inline-block;
+    margin-right: 10px;
+}
 </style>
 <body>
     <div class="container">
         <div id="map"></div>
         <div class="search-container">
-            <h4>Debated logging projects in federal lands with old-growth and mature forests</h4>
+            <h1>Debated logging projects in federal lands with old-growth and mature forests</h1>
             <p>By Laura Kukkonen</p>
             <p>Select one of the projects to learn more about them or hover over the orange circles on the map. Explore the amount of old-growth throughout the country by zooming in and hovering over areas.</p>
             <select id="projectDropdown">
                 <option value="">Select</option>
             </select>
             <p id="projectInfo"></p>
-            <p>Source: The Forest Service, Climate Forests</p>
-        </div>
-        <div class="legend">
             <h4>Acres of old-growth in a fireshed</h4>
             <div class="color-bar"></div>
             <div class="range-labels">
                 <span>1</span>
                 <span>250,000</span>
             </div>
-        </div>
+            <div class="circle-size-legend">
+                <h4>Acres proposed for logging in the projects</h4>
+                <div class="circle-sizes">
+                    <div class="circle-size">
+                        <div class="circle" style="width: 5px; height: 5px;"></div>
+                        <span>less than 1,000 acres</span>
+                    </div>
+                    <div class="circle-size">
+                        <div class="circle" style="width: 15px; height: 15px;"></div>
+                    </div>
+                    <div class="circle-size">
+                        <div class="circle" style="width: 30px; height: 30px;"></div>
+                    </div>
+                    <div class="circle-size">
+                        <div class="circle" style="width: 40px; height: 40px;"></div>
+                        <span>180,000 acres</span>
+                    </div>
+                </div>
+                <p>Source: The Forest Service, Climate Forests</p>
+            </div>
     </div>
     <script>
         mapboxgl.accessToken = 'pk.eyJ1IjoibGF1cmFtZWsiLCJhIjoiY2xpZW1lNDhyMDcyazNrbXIxZWVlb2FkeiJ9.EMmoLWWUuRelWB2Jucc23Q';
@@ -160,9 +192,8 @@
         const projectNames = new Set();
         const projectDropdown = document.getElementById('projectDropdown');
 
-        // Query features for the specific layer
         const features = map.queryRenderedFeatures({
-            layers: ['projects'] // Use the actual layer ID
+            layers: ['projects']
         });
 
         features.forEach(feature => {
@@ -172,10 +203,8 @@
             }
         });
 
-        // Convert Set to Array and sort alphabetically
         const sortedProjectNames = Array.from(projectNames).sort();
 
-        // Add sorted options to the dropdown
         sortedProjectNames.forEach(name => {
             const option = document.createElement('option');
             option.value = name;
@@ -209,10 +238,8 @@
                 `)
                 .addTo(map);
     
-                // Count projects in the selected state
                 const projectCount = countProjectsInState(feature.properties.state);
     
-                // Update project information paragraph with correct singular/plural form
                 const projectText = projectCount === 1 ? 'There is 1 logging project' : `There are ${projectCount} logging projects`;
                 document.getElementById('projectInfo').innerHTML = `The ${feature.properties.name_of_project} in ${feature.properties.state} is targeting ${Number(feature.properties.acres_to_log).toLocaleString()} acres of forest. ${projectText} in ${feature.properties.state} that environmental groups oppose.`;
             }
@@ -228,13 +255,11 @@
             return count;
         }
     
-        // Variable to hold the currently open popup
         let popup = new mapboxgl.Popup({
             closeButton: false,
             closeOnClick: false
         });
     
-        // hover to show OLD_GROWTH_ACRES
         map.on('mousemove', 'oldgrowth', (e) => {
             const features = e.features;
             if (features.length > 0) {
@@ -253,7 +278,6 @@
             popup.remove();
         });
     
-        // hover to show projects
         map.on('mousemove', 'projects', (e) => {
             const features = e.features;
             if (features.length > 0) {
