@@ -117,6 +117,16 @@
     display: inline-block;
     margin-right: 10px;
 }
+.content-container {
+    background-color: rgba(241, 248, 246, 0.881); /* White background */
+    padding: 15px; /* Add some padding inside the container */
+    margin: 0 4px; /* Add margin on the sides */
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow for better visibility */
+}
+.content-container h4,
+.content-container .range-labels span {
+    color: #10382f; /* Ensures all text elements inside content-container have the correct color */
+}
 </style>
 <body>
     <div class="container">
@@ -129,14 +139,15 @@
                 <option value="">Select</option>
             </select>
             <p id="projectInfo"></p>
-            <h4>Acres of old-growth in a fireshed</h4>
-            <div class="color-bar"></div>
-            <div class="range-labels">
-                <span>1</span>
-                <span>250,000</span>
+            <div class="content-container">
+                <h4>Acres of old-growth in a fireshed</h4>
+                <div class="color-bar"></div>
+                <div class="range-labels">
+                    <span>1</span>
+                    <span>250,000</span>
+                </div>
             </div>
-            <div class="circle-size-legend">
-                <h4>Acres proposed for logging in the projects</h4>
+                <h4>Proposed for logging in the projects</h4>
                 <div class="circle-sizes">
                     <div class="circle-size">
                         <div class="circle" style="width: 5px; height: 5px;"></div>
@@ -153,6 +164,8 @@
                         <span>180,000 acres</span>
                     </div>
                 </div>
+                
+            </div>
                 <p>Source: The Forest Service, Climate Forests</p>
             </div>
     </div>
