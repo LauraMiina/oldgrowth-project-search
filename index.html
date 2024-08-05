@@ -239,7 +239,7 @@
         const projectDropdown = document.getElementById('projectDropdown');
 
         const features = map.queryRenderedFeatures({
-            layers: ['projects-new']
+            layers: ['projects']
         });
 
         features.forEach(feature => {
@@ -328,7 +328,7 @@
             popup.remove();
         });
     
-        map.on('mousemove', 'projects-new', (e) => {
+        map.on('mousemove', 'projects', (e) => {
             const features = e.features;
             if (features.length > 0) {
                 const feature = features[0];
@@ -345,7 +345,7 @@
             }
         });
     
-        map.on('mouseleave', 'projects-new', () => {
+        map.on('mouseleave', 'projects', () => {
             map.getCanvas().style.cursor = '';
             popup.remove();
         });
