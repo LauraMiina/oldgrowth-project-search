@@ -7,6 +7,8 @@
     <link rel="stylesheet" href="reset.css">
     <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Questrial&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
 </head>
 <style>
     body {
@@ -20,19 +22,30 @@
     }
     h1 {
         font-size: 30px;
-        margin-bottom: 0px;
+        margin-bottom: 10px;
         font-weight: bold;
+        font-weight: bold;
+        font-family: "DM Serif Display", serif;
     }
     h4 {
         font-size: 20px;
         margin-bottom: 40px;
+        margin-top: 15px;
+        font-weight: bold;
+        font-family: "DM Serif Display", serif;
     }
     p {
+        font-size: 18px;
         margin-bottom: 18px;
+        font-family: "Questrial", sans-serif;
+        font-weight: lighter;
     }
     .byline {
+        font-size: 18px;
         font-style: italic;
         margin-bottom: 18px;
+        font-family: "Questrial", sans-serif;
+        font-weight: lighter;
     }
     #map {
         height: 100vh;
@@ -41,7 +54,7 @@
     }
     .mapboxgl-popup {
         max-width: 400px;
-        font: 12px/20px 'Helvetica Neue', Garamond;
+        font-family: "Questrial", sans-serif;
     }
     .legend {
         position: absolute;
@@ -50,7 +63,7 @@
         padding: 10px;
         background: rgba(255, 255, 255, 0.565);
         border-radius: 5px;
-        font-family: 'Helvetica Neue', Arial, sans-serif;
+        font-family: "Questrial", sans-serif;
         font-weight: bold;
         font-size: 13px;
         color: #555;
@@ -81,16 +94,16 @@
         color: white;
         width: 400px;
         height: 100vh;
-        font-family: 'Helvetica Neue', Arial, sans-serif;
     }
     .search-container h4 {
-        margin: 0 0 10px;
+        margin-top: 10px;
+        margin-bottom: 10px;
         font-size: 20px;
         font-weight: bold;
     }
     .search-container p {
-        margin: 0 0 10px;
-        font-size: 14px;
+        margin: 0 0 15px;
+        font-size: 16px;
     }
     .search-container select {
         width: 100%;
@@ -118,55 +131,75 @@
     margin-right: 10px;
 }
 .content-container {
-    background-color: rgba(241, 248, 246, 0.881); /* White background */
-    padding: 15px; /* Add some padding inside the container */
-    margin: 0 4px; /* Add margin on the sides */
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Optional: Adds a subtle shadow for better visibility */
+    background-color: rgba(241, 248, 246, 0.881);
+    padding: 10px; /* Add some padding inside the container */
+   /* margin: 0 4px; /* Add margin on the sides */
+    margin-bottom: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); 
 }
 .content-container h4,
 .content-container .range-labels span {
-    color: #10382f; /* Ensures all text elements inside content-container have the correct color */
+    color: #10382f; 
 }
+.content-container span {
+    font-family: "Arial", sans-serif;
+}
+
+.search-content {
+    font-family: "Questrial", sans-serif;
+    color: #fafbfb;
+    font-size: 16px;
+}
+.popup-content {
+    font-family: "Questrial", sans-serif;
+    color: #10382f;
+    font-size: 16px;
+    line-height: 1.5;
+}
+
+.popup-content b {
+    font-family: "DM Serif Display", serif;
+    font-weight: bold;
+    font-size: 20px;
+}
+
+.search-content .highlight {
+    color: #f9d2b9; /* Use this class to highlight certain text */
+    font-weight: bold;
+    font-size: 24px;
+}
+
+.popup-content .highlight {
+    color: #10382f; /* Use this class to highlight certain text */
+    font-weight: bold;
+    font-size: 16px;
+}
+
 </style>
 <body>
     <div class="container">
         <div id="map"></div>
         <div class="search-container">
             <h1>Debated logging projects in federal lands with old-growth and mature forests</h1>
-            <p>By Laura Kukkonen</p>
             <p>Select one of the projects to learn more about them or hover over the orange circles on the map. Explore the amount of old-growth throughout the country by zooming in and hovering over areas.</p>
             <select id="projectDropdown">
                 <option value="">Select</option>
             </select>
             <p id="projectInfo"></p>
-            <div class="content-container">
-                <h4>Acres of old-growth in a fireshed</h4>
-                <div class="color-bar"></div>
-                <div class="range-labels">
-                    <span>1</span>
-                    <span>250,000</span>
-                </div>
-            </div>
-                <h4>Proposed for logging in the projects</h4>
+                <h4>Proposed logging in the project</h4>
                 <div class="circle-sizes">
-                    <div class="circle-size">
-                        <div class="circle" style="width: 5px; height: 5px;"></div>
-                        <span>less than 1,000 acres</span>
-                    </div>
-                    <div class="circle-size">
-                        <div class="circle" style="width: 15px; height: 15px;"></div>
-                    </div>
-                    <div class="circle-size">
-                        <div class="circle" style="width: 30px; height: 30px;"></div>
-                    </div>
-                    <div class="circle-size">
-                        <div class="circle" style="width: 40px; height: 40px;"></div>
-                        <span>180,000 acres</span>
+                    <img src="orange_range.svg" alt="">
+                </div>
+                <div class="content-container">
+                    <h4>Acres of old-growth in a fireshed</h4>
+                    <div class="color-bar"></div>
+                    <div class="range-labels">
+                        <span>1</span>
+                        <span>250,000</span>
                     </div>
                 </div>
-                
-            </div>
-                <p>Source: The Forest Service, Climate Forests</p>
+                <p>Map by: Laura Kukkonen</p>
+                <p>Sources: The U.S. Forest Service, Climate Forests coalition</p>
             </div>
     </div>
     <script>
@@ -206,7 +239,7 @@
         const projectDropdown = document.getElementById('projectDropdown');
 
         const features = map.queryRenderedFeatures({
-            layers: ['projects']
+            layers: ['projects2']
         });
 
         features.forEach(feature => {
@@ -243,18 +276,22 @@
                 })
                 .setLngLat(feature.geometry.coordinates)
                 .setHTML(`
-                    <div>
+                    <div class="popup-content">
                         <b>${feature.properties.name_of_project}</b><br>
-                        Amount of acres subject to logging: ${Number(feature.properties.acres_to_log).toLocaleString()}<br>
+                        Subject to logging: <span class="highlight">${Number(feature.properties.acres_to_log).toLocaleString()} acres</span><br>
                         ${feature.properties.description}
-                    </div>
+                        </div>
                 `)
                 .addTo(map);
     
                 const projectCount = countProjectsInState(feature.properties.state);
     
-                const projectText = projectCount === 1 ? 'There is 1 logging project' : `There are ${projectCount} logging projects`;
-                document.getElementById('projectInfo').innerHTML = `The ${feature.properties.name_of_project} in ${feature.properties.state} is targeting ${Number(feature.properties.acres_to_log).toLocaleString()} acres of forest. ${projectText} in ${feature.properties.state} that environmental groups oppose.`;
+                const projectText = projectCount === 1 ? '1 project' : `${projectCount} projects`;
+                document.getElementById('projectInfo').innerHTML = `<div class="search-content">
+                The ${feature.properties.name_of_project} in ${feature.properties.state} is targeting 
+                <span class="highlight">${Number(feature.properties.acres_to_log).toLocaleString()}</span> acres of forest. Environmental groups are opposing <span class="highlight">${projectText}</span> in <span class="highlight">${feature.properties.state}</span>.
+            </div>
+            `;
             }
         });
     
@@ -281,7 +318,7 @@
     
                 popup
                     .setLngLat(e.lngLat)
-                    .setHTML(`<div>Amount of old-growth forest inside the fireshed ${feature.properties.Fireshed_Name}: ${Number(feature.properties.OLD_GROWTH_ACRES).toLocaleString()} acres</div>`)
+                    .setHTML(`<div class="popup-content">Amount of old-growth forest inside the fireshed <span class="highlight">${feature.properties.Fireshed_Name}: ${Number(feature.properties.OLD_GROWTH_ACRES).toLocaleString()} acres</span></div>`)
                     .addTo(map);
             }
         });
@@ -291,7 +328,7 @@
             popup.remove();
         });
     
-        map.on('mousemove', 'projects', (e) => {
+        map.on('mousemove', 'projects2', (e) => {
             const features = e.features;
             if (features.length > 0) {
                 const feature = features[0];
@@ -299,16 +336,16 @@
     
                 popup
                     .setLngLat(e.lngLat)
-                    .setHTML(`<div>
+                    .setHTML(`<div class="popup-content">
                         <b>${feature.properties.name_of_project}</b><br>
-                        Amount of acres subject to logging: ${Number(feature.properties.acres_to_log).toLocaleString()}<br>
+                        Subject to logging: <span class="highlight">${Number(feature.properties.acres_to_log).toLocaleString()} acres</span><br>
                         ${feature.properties.description}
                         </div>`)
                     .addTo(map);
             }
         });
     
-        map.on('mouseleave', 'projects', () => {
+        map.on('mouseleave', 'projects2', () => {
             map.getCanvas().style.cursor = '';
             popup.remove();
         });

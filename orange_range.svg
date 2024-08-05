@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="Layer_1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 169.85 53.92">
+  <defs>
+    <style>
+      .cls-1, .cls-2 {
+        fill: #f5640a;
+      }
+
+      .cls-2, .cls-3 {
+        opacity: .75;
+      }
+
+      .cls-4 {
+        fill: white;
+        font-family: ArialMT, Arial;
+        font-size: 8px;
+      }
+    </style>
+  </defs>
+  <g class="cls-3">
+    <circle class="cls-1" cx="17.61" cy="20.5" r="2.5"/>
+  </g>
+  <circle class="cls-2" cx="132.11" cy="20" r="20"/>
+  <circle class="cls-2" cx="88.11" cy="19" r="15"/>
+  <circle class="cls-2" cx="55.11" cy="19" r="10"/>
+  <circle class="cls-2" cx="33.11" cy="20" r="5"/>
+  <text class="cls-4" transform="translate(0 50.68)"><tspan x="0" y="0">&lt; 1,000</tspan></text>
+  <text class="cls-4" transform="translate(106.47 50.49)"><tspan x="0" y="0">250,000 acres</tspan></text>
+</svg>
