@@ -21,16 +21,16 @@
         position: relative;
     }
     h1 {
-        font-size: 30px;
-        margin-bottom: 10px;
-        font-weight: bold;
+        font-size: 28px;
+        margin-bottom: 5px;
+        margin-top: 5px;
         font-weight: bold;
         font-family: "DM Serif Display", serif;
     }
     h4 {
         font-size: 20px;
-        margin-bottom: 40px;
-        margin-top: 15px;
+        margin-bottom: 10px;
+        margin-top: 10px;
         font-weight: bold;
         font-family: "DM Serif Display", serif;
     }
@@ -93,11 +93,11 @@
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); */
         color: white;
         width: 400px;
-        height: 100vh;
+        height: 95.4%;
     }
     .search-container h4 {
-        margin-top: 10px;
-        margin-bottom: 10px;
+        margin-top: 5px;
+        margin-bottom: 5px;
         font-size: 20px;
         font-weight: bold;
     }
@@ -181,16 +181,17 @@
         <div id="map"></div>
         <div class="search-container">
             <h1>Debated logging projects in federal lands with old-growth and mature forests</h1>
-            <p>Select one of the projects to learn more about them or hover over the orange circles on the map. Explore the amount of old-growth throughout the country by zooming in and hovering over areas.</p>
+            <p>Select one of the projects to learn more or hover over the orange circles on the map. Explore the amount of old-growth throughout the country by zooming in and hovering over areas.</p>
             <select id="projectDropdown">
                 <option value="">Select</option>
             </select>
             <p id="projectInfo"></p>
+            <div class="content-container">
                 <h4>Proposed logging in the project</h4>
                 <div class="circle-sizes">
                     <img src="orange_range.svg" alt="">
                 </div>
-                <div class="content-container">
+                
                     <h4>Acres of old-growth in a fireshed</h4>
                     <div class="color-bar"></div>
                     <div class="range-labels">
@@ -198,8 +199,7 @@
                         <span>250,000</span>
                     </div>
                 </div>
-                <p>Map by: Laura Kukkonen</p>
-                <p>Sources: The U.S. Forest Service, Climate Forests coalition</p>
+                <p>Map by: Laura Kukkonen, Sources: The U.S. Forest Service, Climate Forests coalition</p>
             </div>
     </div>
     <script>

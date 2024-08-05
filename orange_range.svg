@@ -11,7 +11,7 @@
       }
 
       .cls-4 {
-        fill: white;
+        fill: #10382f;
         font-family: ArialMT, Arial;
         font-size: 8px;
       }
